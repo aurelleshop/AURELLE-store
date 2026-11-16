@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELLE | Checkout</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff8f6;color:#493b38;font-family:Arial,sans-serif}
+header{text-align:center;padding:25px;background:#f5e3e2}
+header h1{font-family:Georgia,serif;color:#a77b48;letter-spacing:5px}
+main{max-width:650px;margin:25px auto;padding:25px;background:white;border-radius:15px}
+h2{font-family:Georgia,serif;color:#a77b48}
+label{display:block;margin-top:15px;font-size:14px}
+input,textarea{width:100%;padding:13px;margin-top:7px;border:1px solid #e6ceca;border-radius:7px;font-size:15px}
+textarea{min-height:85px}
+button{width:100%;padding:15px;margin-top:18px;border:0;border-radius:7px;background:#b68a55;color:white;font-size:16px;cursor:pointer}
+#summary{background:#fff7f3;padding:15px;border-radius:8px;white-space:pre-line}
+.small{font-size:13px;color:#766}
+</style>
+</head>
+<body>
+<header>
+<h1>AURELLE</h1>
+<p>Luxury Shopping • Checkout</p>
+</header>
+<main>
+<h2>Delivery Details</h2>
+<form id="orderForm">
+<label>Full Name *</label>
+<input name="customer_name" required>
+
+<label>Phone Number *</label>
+<input name="phone" type="tel" pattern="[0-9]{10}" maxlength="10" required>
+
+<label>Full Delivery Address *</label>
+<textarea name="address" required></textarea>
+
+<label>PIN Code *</label>
+<input name="pincode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required>
+
+<h2>Order Summary</h2>
+<div id="summary">Loading your cart...</div>
+
+<input type="hidden" name="order_items" id="orderItems">
+<input type="hidden" name="subtotal" id="subtotal">
+<input type="hidden" name="delivery" id="delivery">
+<input type="hidden" name="total" id="total">
+<input type="hidden" name="payment_status" value="Pending - verify manually">
+
+<button type="submit" id="submitBtn">Submit Order Details</button>
+</form>
+
+<div id="paymentArea" hidden>
+<h2>UPI Payment</h2>
+<p id="payAmount"></p>
+<p class="small">Complete payment using your UPI app. Your order is not confirmed until payment is verified.</p>
+<button id="payBtn" type="button">Pay with UPI</button>
+<p id="status"></p>
+</div>
+</main>
+
+<script>
+const UPI_ID="abhijajoy29@oksbi";
+const DISPLAY_NAME="AURELLE";
+const DELIVERY_CHARGE=50;
+
+let cart=[];
+try{
+cart=JSON.parse(localStorage.getItem("aurelleCart")||"[]");
+}catch(e){cart=[];}
+
+const summary=document.getElementById("summary");
+let subtotal=0;
+cart.forEach(item=>{
+subtotal+=Number(item.price)*Number(item.qty);
+});
+const delivery=subtotal>=999?0:DELIVERY_CHARGE;
+const total=subtotal+delivery;
+
+summary.textContent=cart.length
+?cart.map(i=>`${i.name} × ${i.qty} = ₹${i.price*i.qty}`).join("\n")+
+`\n\nSubtotal: ₹${subtotal}\nDelivery: ₹${delivery}\nTOTAL: ₹${total}`
+:"Your cart is empty. Return to the shop and add products.";
+
+document.getElementById("orderItems").value=
+cart.map(i=>`${i.name} x ${i.qty}`).join(", ");
+document.getElementById("subtotal").value=subtotal;
+document.getElementById("delivery").value=delivery;
+document.getElementById("total").value=total;
+
+document.getElementById("orderForm").addEventListener("submit",async function(e){
+e.preventDefault();
+if(!cart.length){alert("Your cart is empty.");return;}
+
+const btn=document.getElementById("submitBtn");
+btn.disabled=true;
+btn.textContent="Submitting order...";
+
+try{
+const response=await fetch("https://formspree.io/f/myeweakv",{
+method:"POST",
+body:new FormData(this),
+headers:{Accept:"application/json"}
+});
+if(!response.ok)throw new Error("Order submission failed");
+
+document.getElementById("paymentArea").hidden=false;
+document.getElementById("payAmount").textContent=`Amount to pay: ₹${total}`;
+document.getElementById("status").textContent="Order details submitted. Please complete UPI payment.";
+btn.textContent="Order details submitted";
+document.getElementById("paymentArea").scrollIntoView({behavior:"smooth"});
+}catch(error){
+alert("Could not submit. Please check your internet and try again.");
+btn.disabled=false;
+btn.textContent="Submit Order Details";
+}
+});
+
+document.getElementById("payBtn").addEventListener("click",()=>{
+const link="upi://pay?pa="+encodeURIComponent(UPI_ID)+
+"&pn="+encodeURIComponent(DISPLAY_NAME)+
+"&am="+total.toFixed(2)+"&cu=INR"+
+"&tn="+encodeURIComponent("AURELLE jewellery order");
+window.location.href=link;
+});
+</script>
+</body>
+</html>
