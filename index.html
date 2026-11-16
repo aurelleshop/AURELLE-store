@@ -1,1 +1,206 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AURELLE | Luxury Shopping</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#fffdfb;color:#40332f;font-family:Arial,sans-serif}
+.announcement{background:#f1e6dc;text-align:center;padding:12px;font-size:13px;letter-spacing:1px}
+header{background:white;padding:22px 5%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;border-bottom:1px solid #eee}
+.logo{font-family:Georgia,serif;font-size:30px;letter-spacing:5px;color:#bd8298}
+header button{border:0;background:none;font-size:16px;cursor:pointer}
+nav{display:flex;justify-content:center;gap:25px;padding:14px;flex-wrap:wrap;border-bottom:1px solid #eee}
+nav a{color:#59483d;text-decoration:none;font-size:13px;letter-spacing:1px}
+.hero{background:linear-gradient(120deg,#f3e5e2,#f3eadb);text-align:center;padding:65px 15px}
+.hero h1{font-family:Georgia,serif;font-size:42px;font-weight:normal;margin:8px}
+.hero p{letter-spacing:2px;font-size:12px}
+.hero a,.checkout{display:inline-block;background:#bd8298;color:white;padding:13px 27px;text-decoration:none;border:0;cursor:pointer;margin-top:15px}
+.section{padding:35px 5%}
+.section h2{text-align:center;font-family:Georgia,serif;font-weight:normal;font-size:29px}
+.categories{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:20px 0}
+.categories button{background:#f3e9df;border:0;padding:11px 17px;cursor:pointer;color:#59483d}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}
+.card{background:white;border:1px solid #eee5df;padding-bottom:15px}
+.card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#f4eee8}
+.card h3{font-family:Georgia,serif;font-size:16px;font-weight:normal;margin:12px 10px 5px}
+.rating{color:#b58b45;margin:5px 10px;font-size:13px}
+.price{margin:8px 10px;font-weight:bold}
+.old{color:#999;text-decoration:line-through;font-weight:normal;margin-left:7px;font-size:12px}
+.card button{margin:8px 10px 0;width:calc(100% - 20px);padding:11px;border:0;background:#f0e5dc;color:#59483d;cursor:pointer}
+.card button:hover{background:#bd8298;color:white}
+#cart{display:none;background:#f9f4ef;padding:25px 5%}
+.cart-item{display:flex;gap:15px;align-items:center;border-bottom:1px solid #e4d9cf;padding:15px 0}
+.cart-item img{width:85px;height:85px;object-fit:cover}
+.cart-info{flex:1}
+.qty button{padding:5px 10px;border:1px solid #d6c5b7;background:white;cursor:pointer}
+.remove{border:0;background:none;color:#a66b79;cursor:pointer}
+.summary{max-width:400px;margin:20px 0 20px auto}
+.summary p{display:flex;justify-content:space-between}
+.checkout{width:100%;font-size:15px}
+.empty{text-align:center;padding:25px}
+footer{background:#f2e8df;text-align:center;padding:35px 15px;margin-top:35px}
+footer h2{font-family:Georgia,serif;color:#bd8298;letter-spacing:4px}
+@media(max-width:750px){.products{grid-template-columns:repeat(2,1fr)}.hero h1{font-size:32px}}
+@media(max-width:380px){.products{gap:9px}.card h3{font-size:14px}}
+</style>
+</head>
+<body>
+
+<div class="announcement">✨ WELCOME TO AURELLE • SPECIAL LAUNCH OFFERS ✨</div>
+
+<header>
+<button onclick="document.getElementById('products').scrollIntoView()">☰</button>
+<div class="logo">AURELLE</div>
+<button onclick="showCart()">🛍 BAG (<span id="count">0</span>)</button>
+</header>
+
+<nav>
+<a href="#home">HOME</a>
+<a href="#products">SHOP ALL</a>
+<a href="#products">NEW ARRIVALS</a>
+<a href="#products">SALE</a>
+<a href="#contact">CONTACT</a>
+</nav>
+
+<section class="hero" id="home">
+<p>THE BEAUTY OF EVERYDAY LUXURY</p>
+<h1>Discover Your Style</h1>
+<p>JEWELLERY • ACCESSORIES • MORE</p>
+<a href="#products">SHOP NOW</a>
+</section>
+
+<section class="section" id="products">
+<h2>Shop Our Collection</h2>
+<div class="categories">
+<button onclick="filterProducts('All')">All</button>
+<button onclick="filterProducts('Jewellery')">Jewellery</button>
+<button onclick="filterProducts('Accessories')">Accessories</button>
+<button onclick="filterProducts('Beauty')">Beauty</button>
+<button onclick="filterProducts('Clothing')">Clothing</button>
+</div>
+<div class="products" id="productGrid"></div>
+</section>
+
+<section id="cart">
+<h2 style="font-family:Georgia,serif;font-weight:normal">YOUR SHOPPING BAG ♡</h2>
+<div id="cartItems"></div>
+<div class="summary">
+<p>Subtotal <strong id="subtotal">₹0</strong></p>
+<p>Delivery <strong id="delivery">₹0</strong></p>
+<hr>
+<p>Total <strong id="total">₹0</strong></p>
+<button class="checkout" onclick="checkout()">PROCEED TO CHECKOUT</button>
+</div>
+<button onclick="document.getElementById('products').scrollIntoView()" style="padding:10px;border:0;cursor:pointer">← CONTINUE SHOPPING</button>
+</section>
+
+<footer id="contact">
+<h2>AURELLE</h2>
+<p>Your everyday luxury store.</p>
+<p>For orders and enquiries, contact us on WhatsApp.</p>
+<p>© 2026 AURELLE. All rights reserved.</p>
+</footer>
+
+<script>
+const products=[
+{id:1,name:"Golden Layer Necklace",price:499,category:"Jewellery",image:"https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600"},
+{id:2,name:"Elegant Gold Earrings",price:299,category:"Jewellery",image:"https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600"},
+{id:3,name:"Pearl Necklace",price:599,category:"Jewellery",image:"https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600"},
+{id:4,name:"Luxury Bracelet",price:399,category:"Accessories",image:"https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600"},
+{id:5,name:"Fashion Sunglasses",price:449,category:"Accessories",image:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600"},
+{id:6,name:"Beauty Essentials",price:349,category:"Beauty",image:"https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600"},
+{id:7,name:"Elegant Handbag",price:799,category:"Accessories",image:"https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600"},
+{id:8,name:"Classic Fashion Wear",price:899,category:"Clothing",image:"https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600"}
+];
+
+let cart=JSON.parse(localStorage.getItem("aurelleCart")||"[]");
+
+function renderProducts(list=products){
+document.getElementById("productGrid").innerHTML=list.map(p=>`
+<div class="card">
+<img src="${p.image}" alt="${p.name}">
+<h3>${p.name}</h3>
+<div class="rating">★★★★★ <span style="color:#888">New</span></div>
+<div class="price">₹${p.price}</div>
+<button onclick="addToCart(${p.id})">ADD TO CART</button>
+</div>`).join("");
+}
+
+function filterProducts(category){
+renderProducts(category==="All"?products:products.filter(p=>p.category===category));
+}
+
+function saveCart(){
+localStorage.setItem("aurelleCart",JSON.stringify(cart));
+renderCart();
+}
+
+function addToCart(id){
+let item=cart.find(x=>x.id===id);
+if(item){item.qty++;}
+else{cart.push({...products.find(p=>p.id===id),qty:1});}
+saveCart();
+alert("Added to your AURELLE shopping bag!");
+}
+
+function renderCart(){
+document.getElementById("count").textContent=cart.reduce((s,i)=>s+i.qty,0);
+document.getElementById("cartItems").innerHTML=cart.length?cart.map(i=>`
+<div class="cart-item">
+<img src="${i.image}" alt="${i.name}">
+<div class="cart-info">
+<strong>${i.name}</strong>
+<p>₹${i.price} each</p>
+<div class="qty">
+<button onclick="changeQty(${i.id},-1)">−</button>
+<span>${i.qty}</span>
+<button onclick="changeQty(${i.id},1)">+</button>
+</div>
+</div>
+<strong>₹${i.price*i.qty}</strong>
+<button class="remove" onclick="removeItem(${i.id})">Remove</button>
+</div>`).join(""):'<div class="empty">Your shopping bag is empty ♡</div>';
+let sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+let delivery=sub===0?0:sub>=999?0:50;
+document.getElementById("subtotal").textContent="₹"+sub;
+document.getElementById("delivery").textContent=delivery===0?(sub>=999?"FREE":"₹0"):"₹"+delivery;
+document.getElementById("total").textContent="₹"+(sub+delivery);
+}
+
+function changeQty(id,amount){
+let item=cart.find(i=>i.id===id);
+if(item){item.qty+=amount;if(item.qty<1)cart=cart.filter(i=>i.id!==id);}
+saveCart();
+}
+
+function removeItem(id){
+cart=cart.filter(i=>i.id!==id);
+saveCart();
+}
+
+function showCart(){
+document.getElementById("cart").style.display="block";
+renderCart();
+document.getElementById("cart").scrollIntoView({behavior:"smooth"});
+}
+
+function checkout(){
+if(!cart.length){alert("Your cart is empty!");return;}
+let message="Hello AURELLE! I want to place an order:%0A";
+cart.forEach(i=>message+=`%0A${i.name} - Qty ${i.qty} - ₹${i.price*i.qty}`);
+let sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+let delivery=sub>=999?0:50;
+message+=`%0A%0ATotal: ₹${sub+delivery}`;
+alert("Next, WhatsApp will open so you can send your order. Please add your delivery details there.");
+window.open("https://wa.me/91YOURNUMBER?text="+message,"_blank");
+}
+
+renderProducts();
+renderCart();
+</script>
+</body>
+</html>
+
