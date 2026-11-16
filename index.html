@@ -189,16 +189,60 @@ renderCart();
 document.getElementById("cart").scrollIntoView({behavior:"smooth"});
 }
 
+
 function checkout(){
-if(!cart.length){alert("Your cart is empty!");return;}
-let message="Hello AURELLE! I want to place an order:%0A";
-cart.forEach(i=>message+=`%0A${i.name} - Qty ${i.qty} - ₹${i.price*i.qty}`);
-let sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
-let delivery=sub>=999?0:50;
-message+=`%0A%0ATotal: ₹${sub+delivery}`;
-alert("Next, WhatsApp will open so you can send your order. Please add your delivery details there.");
-window.open("https://wa.me/91YOURNUMBER?text="+message,"_blank");
+  if(!cart.length){
+    alert("Your cart is empty!");
+    return;
+  }
+
+  const customer = prompt("Enter your full name:");
+  if(!customer || !customer.trim()) return;
+
+  const phone = prompt("Enter your mobile number:");
+  if(!phone || !/^[0-9]{10}$/.test(phone.trim())){
+    alert("Please enter a valid 10-digit mobile number.");
+    return;
+  }
+
+  const address = prompt("Enter your complete delivery address:");
+  if(!address || !address.trim()) return;
+
+  const subtotal = cart.reduce(
+    (sum,item)=>sum + item.price*item.qty,0
+  );
+
+  const delivery = subtotal >= 999 ? 0 : 50;
+  const total = subtotal + delivery;
+
+  const items = cart.map(item =>
+    item.name + " x " + item.qty
+  ).join(", ");
+
+  const note = "AURELLE order - " + customer.trim();
+
+  const upiLink =
+    "upi://pay?pa=abhijajoy29@oksbi" +
+    "&pn=AURELLE" +
+    "&am=" + total.toFixed(2) +
+    "&cu=INR" +
+    "&tn=" + encodeURIComponent(note);
+
+  alert(
+    "AURELLE ORDER\n\n" +
+    "Customer: " + customer + "\n" +
+    "Phone: " + phone + "\n" +
+    "Address: " + address + "\n" +
+    "Products: " + items + "\n" +
+    "Subtotal: Rs. " + subtotal + "\n" +
+    "Delivery: Rs. " + delivery + "\n" +
+    "Total to pay: Rs. " + total +
+    "\n\nNext, complete payment in your UPI app."
+  );
+
+  window.location.href = upiLink;
 }
+
 
 renderProducts();
 renderCart();
