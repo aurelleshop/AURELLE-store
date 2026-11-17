@@ -200,7 +200,7 @@ function checkout(){
   if(!customer || !customer.trim()) return;
 
   const phone = prompt("Enter your mobile number:");
-  if(!phone || !/^[0-9]{10}$/.test(phone.trim())){
+  if(!phone || !/^[0-9]{10}$/.test(phone.trim()))
     alert("Please enter a valid 10-digit mobile number.");
     return;
   }
@@ -240,7 +240,22 @@ function checkout(){
     "\n\nNext, complete payment in your UPI app."
   );
 
+
+const payButton = document.createElement("button");
+
+payButton.textContent = "PAY NOW WITH UPI";
+payButton.type = "button";
+
+payButton.style.cssText =
+  "background:#bd8298;color:white;padding:15px 30px;border:0;border-radius:30px;font-size:16px;cursor:pointer;";
+
+payButton.onclick = function() {
   window.location.href = upiLink;
+};
+
+document.body.appendChild(payButton);
+payButton.scrollIntoView({ behavior: "smooth" });
+
 }
 
 
