@@ -247,6 +247,31 @@ function checkout(){
 renderProducts();
 renderCart();
 </script>
+  
+function payWithUPI(amount) {
+    const upiID = "abhijajoy29@oksbi";
+    const payeeName = "AURELLE";
+
+    if (!amount || Number(amount) <= 0) {
+        alert("Your shopping cart is empty!");
+        return;
+    }
+
+    const orderID = "AUR" + Date.now();
+
+    const upiLink = new URL("upi://pay");
+    upiLink.searchParams.set("pa", upiID);
+    upiLink.searchParams.set("pn", payeeName);
+    upiLink.searchParams.set("am", Number(amount).toFixed(2));
+    upiLink.searchParams.set("cu", "INR");
+    upiLink.searchParams.set("tn", "AURELLE Order " + orderID);
+    upiLink.searchParams.set("tr", orderID);
+
+    window.location.href = upiLink.toString();
+
+    return orderID;
+}
+
 </body>
 </html>
 
